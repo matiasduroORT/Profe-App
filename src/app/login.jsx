@@ -4,7 +4,7 @@ import { useAuth } from '../context/authContext'
 
 export default function LoginScreen() {
 
-    const { login } = useAuth();
+    const { login, register } = useAuth();
 
     const [usuario, setUsuario] = useState('')
     const [password, setPassword] = useState('')
@@ -16,7 +16,7 @@ export default function LoginScreen() {
         if(esLogin){
             login(usuario, password)
         }else{
-            // register(usuario, email, password)
+            register(usuario, email, password)
         }
     }
 

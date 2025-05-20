@@ -62,17 +62,26 @@ export const AuthProvider = ({children}) => {
     }
 
 
-    const register = () => {
-        // Primero hacer un fetch, similar al de login, para verificar si ya hay un usuario registrado con ese email o username
-        // en caso de que lo haya, disparar un alert
-
-
-        // hacer la peticion post a la misma url
+    const register = async ({usuario, email, password}) => {
+        try {
+            const response = await fetch('https://6823c65165ba05803397d99f.mockapi.io/users');
+            const data = await response.json()
+            
+            const userExist = data.some( u => u.usuario === usuario);
+            const emailExist = data.some( u => u.email === email);
+      
+            if(userExist){
+              alert('Usuario ya registrado')
+            }
+            else if(emailExist){
+              alert('Email ya registrado')
+            }
+            else{
 
         const body = JSON.stringify({
-            email:"",
-            username:"",
-            password:"",
+            email:email,
+            username:usuario,
+            password:password,
             avatar:""
         })
 
@@ -91,13 +100,18 @@ export const AuthProvider = ({children}) => {
             alert('Error al registrar el usuario')
         }
     }
+} catch (error) {
+    console.error(error)
+    alert('Error en la autenticacion')
+  }
+}
 
 
 
     const logout = () => setIsAuth(false)
 
     return (
-        <AuthContext.Provider value={{isAuth, login, logout}}>
+        <AuthContext.Provider value={{isAuth, login, logout, register}}>
             {children}
         </AuthContext.Provider>
     )

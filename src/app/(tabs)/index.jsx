@@ -7,9 +7,9 @@ export default function Home(){
 
     const links = [
         { href: '/scroll', label: 'Ir a ScrollUsers'},
-        { href: '/flatlist', label: 'Ir a FlatListUsers'},
+        { href: '/ejemplos/flatlist', label: 'Ir a FlatListUsers'},
         { href: '/touchables', label: 'Ir a Touchables'},
-        { href: '/demo', label: 'Ir a Demo'},
+        { href: '/ejemplos/demo', label: 'Ir a Demo'},
 
     ]
 
