@@ -6,11 +6,12 @@ export default function Home(){
 
 
     const links = [
-        { href: '/scroll', label: 'Ir a ScrollUsers'},
+        { href: '/ejemplos/scroll', label: 'Ir a ScrollUsers'},
         { href: '/ejemplos/flatlist', label: 'Ir a FlatListUsers'},
-        { href: '/touchables', label: 'Ir a Touchables'},
+        { href: '/ejemplos/touchables', label: 'Ir a Touchables'},
         { href: '/ejemplos/demo', label: 'Ir a Demo'},
-
+        { href: '/productos', label: 'Ir a Productos'},
+        { href: '/createProduct', label: 'Ir a Crear Productos'},
     ]
 
 
