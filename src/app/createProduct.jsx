@@ -1,6 +1,9 @@
 import React, { useState } from 'react'
 import { Alert, Button, Image, Platform, SafeAreaView, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import * as ImagePicker from 'expo-image-picker'
+import { useProducts } from '../context/productContext';
+import { useRouter } from 'expo-router';
+import { pickImageFromGallery, takePhotoFromCamera } from '../utils/imagePicker';
 
 export default function CreatProducto() {
 
@@ -9,36 +12,19 @@ export default function CreatProducto() {
     const [price, setPrice] = useState('')
     const [imageUri, setImageUri] = useState(null)
 
-    const pickImage = async () => {
+    const router = useRouter()
 
-        const permiso = await ImagePicker.requestMediaLibraryPermissionsAsync();
-        if(!permiso.granted){
-            alert('Permiso requerido para acceder a la galeria')
-            return
-        }
-        const result = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ImagePicker.MediaTypeOptions.Images, quality: 1,
-            allowsEditing: false
-        })
-
-        if(!result.canceled){
-            setImageUri(result.assets[0].uri)
-        }
+    const { createProduct } = useProducts()
+    
+    const pickImage = async() => {
+        const uri = await pickImageFromGallery()
+        if(uri) setImageUri(uri)
     }
 
-    const takePhoto = async () => {
-
-        const permiso = await ImagePicker.requestCameraPermissionsAsync();
-        if(!permiso.granted){
-            alert('Permiso requerido para acceder a la camara')
-            return
-        }
-        const result = await ImagePicker.launchCameraAsync({ quality: 1, allowsEditing: true})
-
-        if(!result.canceled){
-            setImageUri(result.assets[0].uri)
-        }
+    const takePhoto = async() => {
+        const uri = await takePhotoFromCamera()
+        if(uri) setImageUri(uri)
     }
-
 
 
     return (
@@ -94,8 +80,10 @@ export default function CreatProducto() {
             </View>
 
             <TouchableOpacity style={styles.primaryButton}
-                onPress={( ) => console.log('log')
-                }
+                onPress={( ) => {
+                    createProduct({title, description, price, imageUri})
+                    router.replace("/productos")
+                }}
             >
                 <Text style={styles.primaryText}>Crear Producto</Text>
             </TouchableOpacity>

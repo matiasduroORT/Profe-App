@@ -1,18 +1,12 @@
 import { useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react'
 import { Alert, Button, FlatList, Image, Platform, SafeAreaView, StyleSheet, Text, TextInput, TouchableOpacity } from 'react-native';
+import { useProducts } from '../context/productContext';
 
 export default function Productos() {
 
-    const [productos, setProductos] = useState([])
       const router = useRouter()
-    
-    useEffect(() => {
-      fetch('https://fakestoreapi.com/products')
-      .then( res => res.json())
-      .then(data => setProductos(data))
-      .catch(err => console.error(err))
-    }, [])
+      const {productos } = useProducts()
     
 
     const renderItem = ({item}) => (

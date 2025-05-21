@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as LocalAuthentication from 'expo-local-authentication';
 
 
 const AuthContext = createContext()
@@ -20,10 +21,40 @@ export const AuthProvider = ({children}) => {
             const userData = await AsyncStorage.getItem('userData')
 
             if(isAuthenticated === 'true' && userData){
-                setUser(JSON.parse(userData))
-                setStatus('authenticated');
+
+                const compatible = await LocalAuthentication.hasHardwareAsync()
+
+                const enrolled = await LocalAuthentication.isEnrolledAsync();
+
+                if( compatible && enrolled){
+                    const results = await LocalAuthentication.authenticateAsync({
+                        promptMessage: 'Verifica tu identidad',
+                        fallbackLabel: "Usar contrasenia",
+                        cancelLabel: "Cancelar"
+                    })
+
+                    if(results.success){
+                        setUser(JSON.parse(userData))
+                        setStatus('authenticated');
+                        setIsAuth(true)
+                    }else{
+                        alert('Authenticacion cancelada o fallida')
+                        await AsyncStorage.removeItem("isAuthenticated")
+                        await AsyncStorage.removeItem("userData")
+                        setStatus('unauthenticated')
+                        setIsAuth(false)
+                    }
+                }else{
+                    console.log("Biometria no encontrada");
+                    
+                    setUser(JSON.parse(userData))
+                    setStatus('authenticated');
+                    setIsAuth(true)
+                }
+
             }else{
                 setStatus('unauthenticated')
+                setIsAuth(false)
             }
         }
  

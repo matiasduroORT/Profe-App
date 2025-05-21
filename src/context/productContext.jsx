@@ -28,9 +28,12 @@ export const ProductProvider = ({children}) => {
                 id: Date.now(),
                 title,
                 description,
-                price,
+                price: Number(price),
                 image: imageUri
             }
+
+            console.log("new Product: ", newProduct);
+            
 
             setProductos(prev => [newProduct, ...prev])
         }
@@ -38,7 +41,7 @@ export const ProductProvider = ({children}) => {
 
 
     return (
-        <ProductContext.Provider value={{}}>
+        <ProductContext.Provider value={{createProduct, productos, loading}}>
             {children}
         </ProductContext.Provider>
     )
