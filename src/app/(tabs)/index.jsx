@@ -12,6 +12,8 @@ export default function Home(){
         { href: '/ejemplos/demo', label: 'Ir a Demo'},
         { href: '/productos', label: 'Ir a Productos'},
         { href: '/createProduct', label: 'Ir a Crear Productos'},
+        { href: '/maps', label: 'Ir a Maps'},
+
     ]
 
 
