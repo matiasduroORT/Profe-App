@@ -40,7 +40,7 @@ export default function LayoutPrincipal(){
   return (
     <AuthProvider>
       <ProductProvider>
-      <ProtectedLayout/>  
+        <ProtectedLayout/>  
       </ProductProvider>
     </AuthProvider>
   )

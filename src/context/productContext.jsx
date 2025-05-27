@@ -38,6 +38,8 @@ export const ProductProvider = ({children}) => {
             setProductos(prev => [newProduct, ...prev])
         }
 
+        
+
 
 
     return (
