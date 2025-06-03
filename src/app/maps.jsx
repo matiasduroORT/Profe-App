@@ -1,23 +1,37 @@
 import React, { useEffect, useRef, useState } from 'react'
-import { ActivityIndicator, Animated, Image, Modal, Pressable, StyleSheet, Text, View } from 'react-native'
-import MapView, { Marker } from 'react-native-maps'
+import { ActivityIndicator, Animated, Easing, Image, Modal, Pressable, StyleSheet, Text, View } from 'react-native'
+import MapView, { Marker, Polyline } from 'react-native-maps'
 import * as Location from 'expo-location';
+import { useSedes } from '../context/sedeContext';
 
-const sedes = [
-    {
-        id: '1',
-        title: 'Sucursal Belgrano',
-        description: 'Sucursal en Belgrano',
-        coordenadas: { latitude: -34.5895, longitude: -58.4186 }
-    },
-    {
-        id: '2',
-        title: 'Sucursal Yatay',
-        description: 'Sucursal en Almagro',
-        coordenadas: { latitude: -34.6181, longitude: -58.4438 }
-    },
 
-]
+
+const GOOGLE_MAPS_APIKEY = 'AIzaSyA5_igLeSHGtZ5Z0vj1Ilib7d7s93C3buU'
+
+function decodePolyline(t, e) {
+    let points = [];
+    let index = 0, lat = 0, lng = 0;
+    while (index < t.length) {
+      let b, shift = 0, result = 0;
+      do {
+        b = t.charCodeAt(index++) - 63;
+        result |= (b & 0x1f) << shift;
+        shift += 5;
+      } while (b >= 0x20);
+      let dlat = ((result & 1) ? ~(result >> 1) : (result >> 1));
+      lat += dlat;
+      shift = 0; result = 0;
+      do {
+        b = t.charCodeAt(index++) - 63;
+        result |= (b & 0x1f) << shift;
+        shift += 5;
+      } while (b >= 0x20);
+      let dlng = ((result & 1) ? ~(result >> 1) : (result >> 1));
+      lng += dlng;
+      points.push({ latitude: lat / 1e5, longitude: lng / 1e5 });
+    }
+    return points;
+  }
 
 export default function Maps() {
 
@@ -27,10 +41,12 @@ export default function Maps() {
     const [selectedSede, setSelectedSede] = useState(null)
     const [errorMsg, setErrorMsg] = useState(null);
     const [mapRegion, setMapRegion] = useState(null);
+    const [modalVisible, setModalVisible] = useState(null);
+    const { sedes } = useSedes()
 
     const mapRef = useRef(null)
 
-    const fadeAnim = useRef(new Animated.Value(0).current)
+    const fadeAnim = useRef(new Animated.Value(0)).current
 
     useEffect(() => {
         const cargarLocation = async () => {
@@ -53,8 +69,65 @@ export default function Maps() {
         cargarLocation()
     }, [])
 
-    const fetchRoute = async (destino) => {
+    useEffect(() => {
+        if(modalVisible){
+            Animated.timing(fadeAnim, {
+                toValue: 1,
+                duration: 230,
+                useNativeDriver: true,
+                easing: Easing.out(Easing.ease),
+            }).start()
+        }
+    },[modalVisible])
 
+    const fetchRoute = async (destino) => {
+        console.log("destino: ", destino);
+        if(!location) return;
+        setLoadingRoute(true)
+        setRouteCoords(null);
+
+        const originStr = `${location.latitude},${location.longitude}`
+        const destStr = `${destino.latitude},${destino.longitude}`
+
+        const url = `https://maps.googleapis.com/maps/api/directions/json?origin=${originStr}&destination=${destStr}&mode=walking&key=${GOOGLE_MAPS_APIKEY}`;
+        
+        try {
+            const resp = await fetch(url)
+            const data = await resp.json();
+            if(data.routes && data.routes.length){
+               const points =  decodePolyline(data.routes[0].overview_polyline.points)
+               console.log("decodePolyline: ", points);
+               setRouteCoords(points)
+            }
+            
+        } catch (error) {
+            setErrorMsg('Error al trazar la ruta')
+        }
+        setLoadingRoute(false)
+        setSelectedSede(false)
+        setModalVisible(false)
+    }
+
+    const openSede = (sede) => {
+        console.log(
+            "sede: ", sede
+        );
+        
+        setSelectedSede(sede)
+        setModalVisible(true)
+    }
+
+    const handleClose = () => {
+        Animated.timing(fadeAnim, {
+            toValue: 0,
+            duration: 120,
+            useNativeDriver: true,
+            easing: Easing.out(Easing.ease),
+        }).start(() => {
+            setModalVisible(false)
+            setSelectedSede(null)
+            setRouteCoords(null)
+        })
     }
 
     const centerUser = () => {
@@ -106,10 +179,20 @@ export default function Maps() {
                             <Marker
                                 key={sede.id}
                                 coordinate={sede.coordenadas}
-                                onPress={() => setSelectedSede(sede)}
+                                onPress={() => openSede(sede)}
                                 image={require('../../assets/ort.png')}
                             />
                         ))
+                    }
+
+                    {
+                        routeCoords && (
+                            <Polyline
+                                coordinates={routeCoords}
+                                strokeColor='#007AFF'
+                                strokeWidth={5}
+                            />
+                        )
                     }
 
                 </MapView>
@@ -131,7 +214,7 @@ export default function Maps() {
         </Pressable>
 
         <Modal
-            visible={!!selectedSede}
+            visible={modalVisible}
             animationType='fade'
             transparent
             onRequestClose={() => setSelectedSede(null)}
@@ -164,10 +247,7 @@ export default function Maps() {
                 </View>
                 <Pressable
                     style={styles.closeModal}
-                    onPress={() => {
-                        setSelectedSede(null)
-                        setRouteCoords(null)
-                    }}
+                    onPress={handleClose}
                 >
                     <Text style={styles.closeText}>Cerrar</Text>
                 </Pressable>

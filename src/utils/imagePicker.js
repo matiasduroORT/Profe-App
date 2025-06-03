@@ -10,7 +10,7 @@ export const pickImageFromGallery = async () => {
         }
         const result = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ImagePicker.MediaTypeOptions.Images, quality: 1,
             allowsEditing: false
-        })
+        }) 
 
         if(!result.canceled){
             return result.assets[0].uri

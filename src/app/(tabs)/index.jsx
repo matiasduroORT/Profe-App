@@ -1,8 +1,11 @@
 import { Link } from 'expo-router'
 import React from 'react'
 import { Button, Pressable, StyleSheet, Text, View } from 'react-native'
+import { useAuth } from '../../context/authContext'
 
 export default function Home(){
+
+    const { isAuth, user } = useAuth()
 
 
     const links = [
@@ -15,6 +18,13 @@ export default function Home(){
         { href: '/maps', label: 'Ir a Maps'},
 
     ]
+
+    console.log("user: ", user);
+    
+
+    if(isAuth && user?.admin){
+        links.push({ href: '/add-sede', label: 'Agregar Sede'})
+    }
 
 
   return (
@@ -54,7 +64,8 @@ const styles = StyleSheet.create({
         paddingVertical: 12,
         paddingHorizontal: 25,
         borderRadius: 8,
-        marginBottom: 15
+        marginBottom: 15,
+        minWidth:200
     },
     buttonText:{
         color: 'white',

@@ -142,7 +142,7 @@ export const AuthProvider = ({children}) => {
     const logout = () => setIsAuth(false)
 
     return (
-        <AuthContext.Provider value={{isAuth, login, logout, register}}>
+        <AuthContext.Provider value={{isAuth, login, logout, register, user}}>
             {children}
         </AuthContext.Provider>
     )
